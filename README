@@ -50,3 +50,27 @@ Response: DELETE OK: name
 - To stop the server, press `CTRL+C` in the terminal.
 - To stop the client, press `CTRL+C` or type in "exit" in the terminal.
 
+
+Executive Summary
+
+Assignment Overview
+This project extends the scope of previous project by introducing RPC and multi-threading server support.
+Socket programming is replaced with RPC, making the client-server architecture more scalable, while Java Remote Method Invocation (RMI) enables efficient method invocation on remote systems.
+The project also emphasizes on multi-threading by ensuring that the server could handle multiple client requests at the same time. The client is responsible for sending requests (namely, PUT, GET, and DELETE) to store and retrieve data remotely.
+Additionally, the programs include automated pre-population of the key-value pairs and logging mechanisms to track server-client interactions.
+
+Technical Impression
+A crucial aspect of the project was implementing multi-threading support on the server to allow concurrent client requests.
+By utilizing thread pool and ConcurrentHashMap, the server could gracefully support multiple requests at the same time.
+To test the concurrent functionality, several clients were run simultaneously, and it was confirmed that requests were processed correctly without unexpected failures.
+Through the assignment, I gained hands-on experience on Java concurrent programming.
+
+Working on this project also provided me significant insights into Java RMI and its advantages over traditional socket-based communication.
+Setting up the RMI registry, binding remote objects, and ensuring reliable client-server communication requires understanding of serialization, stub generation, and remote interface implementation.
+One of the main challenges that I encountered was handling remote exceptions, particularly dealing with network failures and server unavailability.
+Implementing graceful error handling helped improve the system’s robustness and reliability.
+
+One potential improvement that I could think of is to include persistent storage on server, instead of relying on volatile memory, so that it could ensure data durability across server reboots.
+Additionally, we could enhance system security by incorporating authentication and encryption, as it is more applicable to real-world scenarios.
+Overall, this project reinforced key concepts in distributed systems, offering a solid foundation for designing scalable and resilient distributed systems.
+
