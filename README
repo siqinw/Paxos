@@ -1,57 +1,49 @@
-# Key-Value Store with Java RMI
+Key-Value Store with Java RMI
 
-## Features
-- **Remote Procedure Call (RPC) support** using Java RMI.
-- **Multi-threaded server** that can handle multiple client requests concurrently.
-- **Pre-populated key-value store** to test basic operations.
-- **Server amd Client logging** for debugging and tracking operations.
-- **Graceful shutdown handling** for both client and server.
+Features
+- Remote Procedure Call (RPC) support using Java RMI.
+- Multi-threaded server that can handle multiple client requests concurrently.
+- Pre-populated key-value store to test basic operations.
+- Server amd Client logging for debugging and tracking operations.
+- Graceful shutdown handling for both client and server.
 
-## Technologies Used
-- **Java RMI (Remote Method Invocation)**
-- **ConcurrentHashMap** for thread-safe storage
-- **ExecutorService** for multi-threaded request handling
+Technologies Used
+- Java RMI (Remote Method Invocation)
+- ConcurrentHashMap for thread-safe storage
+- ExecutorService for multi-threaded request handling
 
-## Setup and Execution
+Setup and Execution
 
-### 1. **Start the Server**
+1. Start the Server
 In the terminal, start the server:
-```sh
 cd src/;
 java RPC.KeyValueStoreServer;
-```
-Expected output:
-```
-[LOG] <timestamp> - Key-Value Store RMI Server is running and ready to accept client connections...
-```
 
-### 2. **Start the Client**
+Expected output:
+[LOG] <timestamp> - Key-Value Store RMI Server is running and ready to accept client connections...
+
+
+2. Start the Client
 Open a new terminal window and start the client:
-```sh
 cd src/;
 java RPC.KeyValueStoreClient 127.0.0.1
-```
+
 Expected output:
-```
 [LOG] <timestamp> - Connected to Key-Value Store RMI Server.
 [LOG] <timestamp> - Pre-populating Key-Value Store with initial data...
-```
 
-### 3. **Testing the Key-Value Store**
+3. Testing the Key-Value Store
 You can manually enter commands to test the server:
-```sh
 PUT name Alice
 GET name
 DELETE name
-```
+
 Expected responses:
-```
 Response: PUT OK: name
 Response: VALUE: Alice
 Response: DELETE OK: name
-```
 
-## 4. Stopping the Server & Clients
-- To stop the **server**, press `CTRL+C` in the terminal.
-- To stop the **client**, press `CTRL+C` or type in "exit" in the terminal.
+4. Stopping the Server & Clients
+- To stop the server, press `CTRL+C` in the terminal.
+- To stop the client, press `CTRL+C` or type in "exit" in the terminal.
 
