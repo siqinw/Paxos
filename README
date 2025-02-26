@@ -13,8 +13,11 @@ Technologies Used
 - ExecutorService for multi-threaded request handling
 
 Setup and Execution
+1. Build Java code
+In the terminal,
+javac src/RPC/*.java;
 
-1. Start the Server
+2. Start the Server
 In the terminal, start the server:
 cd src/;
 java RPC.KeyValueStoreServer;
@@ -23,7 +26,7 @@ Expected output:
 [LOG] <timestamp> - Key-Value Store RMI Server is running and ready to accept client connections...
 
 
-2. Start the Client
+3. Start the Client
 Open a new terminal window and start the client:
 cd src/;
 java RPC.KeyValueStoreClient 127.0.0.1
@@ -32,7 +35,7 @@ Expected output:
 [LOG] <timestamp> - Connected to Key-Value Store RMI Server.
 [LOG] <timestamp> - Pre-populating Key-Value Store with initial data...
 
-3. Testing the Key-Value Store
+4. Testing the Key-Value Store
 You can manually enter commands to test the server:
 PUT name Alice
 GET name
