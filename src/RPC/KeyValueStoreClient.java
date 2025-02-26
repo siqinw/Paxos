@@ -28,8 +28,53 @@ public class KeyValueStoreClient {
 
             Scanner scanner = new Scanner(System.in);
             logMessage("Connected to Key-Value Store RMI Server.");
-            System.out.println("Enter commands (PUT <key> <value>, GET <key>, DELETE <key>) or 'exit' to quit.");
 
+            // Pre-populating the key-value store
+            logMessage("Pre-populating Key-Value Store with initial data...");
+            String[] initialData =  {"key1 value1", "key2 value2", "key3 value3", "key4 value4", "key5 value5"};
+            for (String data : initialData) {
+                String[] parts = data.split(" ", 2);
+                String key = parts[0];
+                String value = parts[1];
+                try {
+                    String response = store.put(key, value);
+                    logMessage("Command: PUT " + data + " - Response: " + response);
+                } catch (Exception e) {
+                    logMessage("ERROR during pre-population: " + e.getMessage());
+                }
+            }
+
+            logMessage("Executing 5 PUTs, 5 GETs, 5 DELETEs...");
+            String[] commands = {
+                    "PUT key6 value6", "PUT key7 value7", "PUT key8 value8", "PUT key9 value9", "PUT key10 value10",
+                    "GET key1", "GET key2", "GET key3", "GET key4", "GET key5",
+                    "DELETE key1", "DELETE key2", "DELETE key3", "DELETE key4", "DELETE key5"
+            };
+
+            for (String cmd : commands) {
+                String[] parts = cmd.split(" ", 3);
+                String operation = parts[0];
+                String key = parts[1];
+                String response = "";
+                try {
+                    switch (operation) {
+                        case "PUT":
+                            response = store.put(key, parts[2]);
+                            break;
+                        case "GET":
+                            response = store.get(key);
+                            break;
+                        case "DELETE":
+                            response = store.delete(key);
+                            break;
+                    }
+                    logMessage("Command: " + cmd + " - Response: " + response);
+                } catch (Exception e) {
+                    logMessage("ERROR during initialization: " + e.getMessage());
+                }
+            }
+
+            System.out.println("Enter commands (PUT <key> <value>, GET <key>, DELETE <key>) or 'exit' to quit.");
             while (true) {
                 logMessage("Waiting for user input");
                 System.out.print("Command: ");
