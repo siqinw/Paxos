@@ -9,70 +9,75 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class CoordinatorServer implements KeyValueStore {
-    private static final List<KeyValueStore> replicas = new ArrayList<>();
+public class CoordinatorServer implements Coordinator {
+    private static final List<Participant> replicas = new ArrayList<>();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-    @Override
     public String put(String key, String value) throws RemoteException {
-        logMessage("Initiating 2PC for PUT - Key: " + key + ", Value: " + value);
+        try {
+            return executorService.submit(() -> {
+                logMessage("Initiating 2PC for PUT - Key: " + key + ", Value: " + value);
 
-        for (KeyValueStore replica : replicas) {
-            if (!replica.prepare(key, value, false)) {
-                logMessage("Prepare phase failed. Aborting transaction.");
-                abortTransaction(key);
-                return "ERROR: Transaction aborted.";
-            }
-        }
+                for (Participant replica : replicas) {
+                    if (!replica.prepare(key, value, false)) {
+                        logMessage("Prepare phase failed. Aborting transaction.");
+                        abortTransaction(key);
+                        return "ERROR: Transaction aborted.";
+                    }
+                }
 
-        for (KeyValueStore replica : replicas) {
-            replica.commit(key, value, false);
+                for (Participant replica : replicas) {
+                    replica.commit(key, value, false);
+                }
+                return "PUT OK: " + key;
+            }).get();
+        } catch (Exception e) {
+            logMessage("ERROR: " + e.getMessage());
+            return "ERROR: Operation failed";
         }
-        return "PUT OK: " + key;
     }
 
-    @Override
     public String get(String key) throws RemoteException {
-        logMessage("GET request received for Key: " + key);
-        int index = new Random().nextInt(replicas.size());
-        return replicas.get(index).get(key);
+        try {
+            return executorService.submit(() -> {
+                logMessage("GET request received for Key: " + key);
+                int index = new Random().nextInt(replicas.size());
+                return replicas.get(index).get(key);
+            }).get();
+        } catch (Exception e) {
+            logMessage("ERROR: " + e.getMessage());
+            return "ERROR: Operation failed";
+        }
     }
 
-    @Override
     public String delete(String key) throws RemoteException {
-        logMessage("Initiating 2PC for DELETE - Key: " + key);
-
-        for (KeyValueStore replica : replicas) {
-            if (!replica.prepare(key, null, true)) {
-                logMessage("Prepare phase failed. Aborting transaction.");
-                abortTransaction(key);
-                return "ERROR: Transaction aborted.";
-            }
+        try {
+            return executorService.submit(() -> {
+                logMessage("Initiating 2PC for DELETE - Key: " + key);
+                for (Participant replica : replicas) {
+                    if (!replica.prepare(key, null, true)) {
+                        logMessage("Prepare phase failed. Aborting transaction.");
+                        abortTransaction(key);
+                        return "ERROR: Transaction aborted.";
+                    }
+                }
+                for (Participant replica : replicas) {
+                    replica.commit(key, null, true);
+                }
+                return "DELETE OK: " + key;
+            }).get();
+        } catch (Exception e) {
+            logMessage("ERROR: " + e.getMessage());
+            return "ERROR: Operation failed";
         }
 
-        for (KeyValueStore replica : replicas) {
-            replica.commit(key, null, true);
-        }
-
-        return "DELETE OK: " + key;
-    }
-
-    @Override
-    public boolean prepare(String key, String value, boolean isDelete) throws RemoteException {
-        return true;
-    }
-
-    @Override
-    public boolean commit(String key, String value, boolean isDelete) throws RemoteException {
-        return true;
-    }
-
-    @Override
-    public void abort(String key) throws RemoteException {
     }
 
     private void abortTransaction(String key) throws RemoteException {
-        for (KeyValueStore replica : replicas) {
+        for (Participant replica : replicas) {
             replica.abort(key);
         }
     }
@@ -89,8 +94,8 @@ public class CoordinatorServer implements KeyValueStore {
         }
 
         try {
-            CoordinatorServer coordinator = new CoordinatorServer();
-            KeyValueStore stub = (KeyValueStore) UnicastRemoteObject.exportObject(coordinator, 0);
+            Coordinator coordinator = new CoordinatorServer();
+            Coordinator stub = (Coordinator) UnicastRemoteObject.exportObject(coordinator, 0);
             Registry registry = LocateRegistry.createRegistry(1099);
             registry.rebind("CoordinatorServer", stub);
             logMessage("Coordinator Server is running...");
@@ -101,8 +106,8 @@ public class CoordinatorServer implements KeyValueStore {
         // Launch 5 replicas
         for (int i=1; i<=5; i++) {
             try {
-                ParticipantServer server = new ParticipantServer(i);
-                KeyValueStore stub = (KeyValueStore) UnicastRemoteObject.exportObject(server, 0);
+                Participant server = new ParticipantServer(i);
+                Participant stub = (Participant) UnicastRemoteObject.exportObject(server, 0);
                 Registry registry = LocateRegistry.createRegistry(1099+i);
                 registry.rebind("ParticipantServer" + i, stub);
                 logMessage("Participant Server " + i + " is running...");
@@ -115,7 +120,7 @@ public class CoordinatorServer implements KeyValueStore {
         for (int i=1; i<=5; i++) {
             try {
                 Registry replicaRegistry = LocateRegistry.getRegistry(1099 + i);
-                KeyValueStore replica = (KeyValueStore) replicaRegistry.lookup("ParticipantServer" + i);
+                Participant replica = (Participant) replicaRegistry.lookup("ParticipantServer" + i);
                 replicas.add(replica);
                 logMessage("Connected to replica " + i);
             } catch (Exception e) {

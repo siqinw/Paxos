@@ -4,55 +4,18 @@ import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class ParticipantServer implements KeyValueStore {
+public class ParticipantServer implements Participant {
     private final ConcurrentHashMap<String, String> store = new ConcurrentHashMap<>();
-    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
-    private int serverId;
+    private final int serverId;
 
     public ParticipantServer(int serverId) {
         this.serverId = serverId;
     }
 
-    @Override
     public String get(String key) throws RemoteException {
-        try {
-            return executorService.submit(() -> {
-                logMessage("GET request - Key: " + key);
-                return store.containsKey(key) ? "VALUE: " + store.get(key) : "ERROR: Key not found";
-            }).get();
-        } catch (Exception e) {
-            logMessage("ERROR: " + e.getMessage());
-            return "ERROR: Operation failed";
-        }
-    }
-
-    public String put(String key, String value) throws RemoteException {
-        try {
-            return executorService.submit(() -> {
-                store.put(key, value);
-                logMessage("PUT request - Key: " + key + ", Value: " + value);
-                return "PUT OK: " + key;
-            }).get();
-        } catch (Exception e) {
-            logMessage("ERROR: " + e.getMessage());
-            return "ERROR: Operation failed";
-        }
-    }
-
-    @Override
-    public String delete(String key) throws RemoteException {
-        try {
-            return executorService.submit(() -> {
-                logMessage("DELETE request - Key: " + key);
-                return store.remove(key) != null ? "DELETE OK: " + key : "ERROR: Key not found";
-            }).get();
-        } catch (Exception e) {
-            logMessage("ERROR: " + e.getMessage());
-            return "ERROR: Operation failed";
-        }
+        logMessage("GET request - Key: " + key);
+        return store.containsKey(key) ? "VALUE: " + store.get(key) : "ERROR: Key not found";
     }
 
     public boolean prepare(String key, String value, boolean isDelete) throws RemoteException {

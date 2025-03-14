@@ -15,7 +15,7 @@ public class Client {
 
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Usage: java KeyValueStoreClient <server_address>");
+            System.out.println("Usage: java Client <server_address>");
             return;
         }
 
@@ -24,7 +24,7 @@ public class Client {
         try {
             // Locate the RMI registry
             Registry registry = LocateRegistry.getRegistry(serverAddress, 1099);
-            KeyValueStore store = (KeyValueStore) registry.lookup("CoordinatorServer");
+            Coordinator store = (Coordinator) registry.lookup("CoordinatorServer");
 
             Scanner scanner = new Scanner(System.in);
             logMessage("Connected to Key-Value Store RMI Server.");
