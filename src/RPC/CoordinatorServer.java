@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class CoordinatorServer implements Coordinator {
     private static final List<Participant> replicas = new ArrayList<>();
@@ -33,7 +35,11 @@ public class CoordinatorServer implements Coordinator {
                     replica.commit(key, value, false);
                 }
                 return "PUT OK: " + key;
-            }).get();
+            }).get(2, TimeUnit.SECONDS);
+        } catch (TimeoutException t) {
+            logMessage("Timeout");
+            abortTransaction(key);
+            return "ERROR: timeout identified";
         } catch (Exception e) {
             logMessage("ERROR: " + e.getMessage());
             return "ERROR: Operation failed";
@@ -46,7 +52,11 @@ public class CoordinatorServer implements Coordinator {
                 logMessage("GET request received for Key: " + key);
                 int index = new Random().nextInt(replicas.size());
                 return replicas.get(index).get(key);
-            }).get();
+            }).get(2, TimeUnit.SECONDS);
+        } catch (TimeoutException t) {
+            logMessage("Timeout");
+            abortTransaction(key);
+            return "ERROR: timeout identified";
         } catch (Exception e) {
             logMessage("ERROR: " + e.getMessage());
             return "ERROR: Operation failed";
@@ -68,7 +78,11 @@ public class CoordinatorServer implements Coordinator {
                     replica.commit(key, null, true);
                 }
                 return "DELETE OK: " + key;
-            }).get();
+            }).get(2, TimeUnit.SECONDS);
+        } catch (TimeoutException t) {
+            logMessage("Timeout");
+            abortTransaction(key);
+            return "ERROR: timeout identified";
         } catch (Exception e) {
             logMessage("ERROR: " + e.getMessage());
             return "ERROR: Operation failed";
