@@ -4,15 +4,29 @@ In the terminal,
 javac src/RPC/*.java;
 
 2. Start the Server
-In the terminal, start the server:
+In the terminal, start the Coordinator Server.
+The Coordinator server will launch the 5 replicas and connect to them.
+
 cd src/;
 java RPC.CoordinatorServer;
 
 Expected output:
 [LOG][CoordinatorServer] <timestamp> - Coordinator Server is running...
+[LOG][CoordinatorServer] <timestamp> - Participant Server 1 is running...
+[LOG][CoordinatorServer] <timestamp> - Participant Server 2 is running...
+[LOG][CoordinatorServer] <timestamp> - Participant Server 3 is running...
+[LOG][CoordinatorServer] <timestamp> - Participant Server 4 is running...
+[LOG][CoordinatorServer] <timestamp> - Participant Server 5 is running...
+[LOG][CoordinatorServer] <timestamp> - Connected to replica 1
+[LOG][CoordinatorServer] <timestamp> - Connected to replica 2
+[LOG][CoordinatorServer] <timestamp> - Connected to replica 3
+[LOG][CoordinatorServer] <timestamp> - Connected to replica 4
+[LOG][CoordinatorServer] <timestamp> - Connected to replica 5
 
 3. Start the Client
-Open a new terminal window and start the client:
+Open a new terminal window and start the client.
+The client will automatically populate data in server.
+
 cd src/;
 java RPC.Client 127.0.0.1;
 
