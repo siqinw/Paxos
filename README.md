@@ -11,13 +11,14 @@ Servers randomly fail and recover to simulate realistic distributed system behav
 
 - 5 Servers (PaxosKeyValueStoreServer):
   - Run independently and participate in Paxos rounds.
-  - Simulate random failure (10% per request) and recovery (30% chance every 5 seconds).
+  - Simulate random failure (10% per request) and self-recovery (after 0.1 seconds).
 - Client (PaxosKeyValueStoreClient):
   - Connects to all servers.
   - Supports interactive command-line input for PUT, GET, DELETE.
-  - Retries operations automatically on failure (up to 3 times).
-
-Each server is a Java RMI object.
+  - Issue each request to a random server.
+  - Retries operations automatically on failure (up to 10 times).
+Notes
+If more than 2 servers fail simultaneously, Paxos consensus may not be achieved until some servers recover.
 
 ## Files
 
@@ -30,65 +31,49 @@ Each server is a Java RMI object.
 - PrepareRequest.java, PrepareResponse.java, AcceptRequest.java, AcceptResponse.java  
   Message classes used in Paxos communication.
 
-- start_servers.sh (optional script)  
-  Bash script to start 5 servers quickly (for manual startup).
+- StartAllServers.java
+  Program to start all 5 servers.
 
 ## How to Compile
 
 ```bash
+cd src/
 javac RPC/*.java
 
 
-How to Run
-Start 5 Servers (each in a new terminal or use a launcher script):
+##** Start the Server**
+```bash
+java RPC.StartAllServers
 
-bash
-Copy
-Edit
-java RPC.PaxosKeyValueStoreServer 1
-java RPC.PaxosKeyValueStoreServer 2
-java RPC.PaxosKeyValueStoreServer 3
-java RPC.PaxosKeyValueStoreServer 4
-java RPC.PaxosKeyValueStoreServer 5
 Each server binds to RMI Registry on port 1099 + serverId.
 
-Start the Client
-
-bash
-Copy
-Edit
+## **Start the Client**
+```bash
 java RPC.PaxosKeyValueStoreClient
-Client Commands
+
+Client to pre-populate the Key-Value store with data and a set of keys. do at least five of each operation: 5 PUTs, 5 GETs, 5 DELETEs.
+
+## **Client Commands**
 Interactive mode supports:
 
-PUT <key> <value> — Insert or update a key.
-
-GET <key> — Retrieve the value for a key.
-
-DELETE <key> — Remove a key.
-
-exit — Quit the client.
+-  PUT <key> <value> — Insert or update a key.
+-  GET <key> — Retrieve the value for a key.
+-  DELETE <key> — Remove a key.
+-  EXIT — Quit the client.
 
 All operations automatically retry if transient errors occur.
 
-Project Highlights
-Paxos Protocol: Ensures strong consistency with majority quorum.
-
-Fault Tolerance: Random server failures and automatic recoveries.
-
-Multi-threading: Java RMI inherently supports concurrent operations.
-
-Logging: Timestamped client logs for all operations.
-
-Retry Logic: Client retries failed requests up to 3 times.
+## **Project Highlights**
+-  Paxos Protocol: Ensures strong consistency with majority quorum.
+-  Fault Tolerance: Random server failures and automatic recoveries.
+-  Multi-threading: Java RMI inherently supports concurrent operations.
+-  Logging: Timestamped client logs for all operations.
+-  Retry Logic: Client retries failed requests up to 10 times.
 
 Requirements
 Java 8 or higher
 
 No external libraries required
-
-Notes
-If more than 2 servers fail simultaneously, Paxos consensus may not be achieved until some servers recover.
 
 The proposer does not count itself as an acceptor; majority acceptance is required from acceptors.
 
