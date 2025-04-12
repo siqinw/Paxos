@@ -9,16 +9,17 @@ Servers randomly fail and recover to simulate realistic distributed system behav
 
 ## Architecture
 
-- 5 Servers (PaxosKeyValueStoreServer):
+- 5 Servers (**PaxosKeyValueStoreServer**):
   - Run independently and participate in Paxos rounds.
   - Simulate random failure (10% per request) and self-recovery (after 0.1 seconds).
-- Client (PaxosKeyValueStoreClient):
+  - If 2  or more acceptors fail simultaneously, Paxos consensus may not be achieved until some servers recover. 
+- Client (**PaxosKeyValueStoreClient**):
   - Connects to all servers.
+  - Pre-populates the Key-Value store and performs five of each operation: PUT, GET and DELETE.
   - Supports interactive command-line input for PUT, GET, DELETE.
   - Issue each request to a random server.
   - Retries operations automatically on failure (up to 10 times).
-Notes
-If more than 2 servers fail simultaneously, Paxos consensus may not be achieved until some servers recover.
+
 
 ## Files
 
@@ -39,19 +40,19 @@ If more than 2 servers fail simultaneously, Paxos consensus may not be achieved 
 ```bash
 cd src/
 javac RPC/*.java
+```
 
-
-##** Start the Server**
+## Start the Server
 ```bash
 java RPC.StartAllServers
+```
+Wait for all servers to be up and connect to each other before running the client program (which takes about 10 seconds).
 
-Each server binds to RMI Registry on port 1099 + serverId.
-
-## **Start the Client**
+## Start the Client
 ```bash
 java RPC.PaxosKeyValueStoreClient
+```
 
-Client to pre-populate the Key-Value store with data and a set of keys. do at least five of each operation: 5 PUTs, 5 GETs, 5 DELETEs.
 
 ## **Client Commands**
 Interactive mode supports:
@@ -70,13 +71,13 @@ All operations automatically retry if transient errors occur.
 -  Logging: Timestamped client logs for all operations.
 -  Retry Logic: Client retries failed requests up to 10 times.
 
-Requirements
-Java 8 or higher
+## Requirements ##
+-   Java 8 or higher
+-   No external libraries required
 
-No external libraries required
+## Notes ##
+- The proposer does not count itself as an acceptor; majority acceptance is required from the 4 acceptors.
+- If 2  or more acceptors fail simultaneously, Paxos consensus may not be achieved until some servers recover. 
 
-The proposer does not count itself as an acceptor; majority acceptance is required from acceptors.
-
-Author
+## Author ##
 Written for Northeastern University CS6650 Distributed Systems, Spring 2025.
-
