@@ -1,4 +1,4 @@
-# CS6650 Project 4: Paxos-Based Replicated Key-Value Store
+# Paxos-Based Replicated Key-Value Store
 
 ## Overview
 
